@@ -216,7 +216,7 @@ function App() {
         
         <div className="sidebar-column">
           <div className="sidebar-widget profile-widget">
-            <div className="profile-img-container"><img src={process.env.PUBLIC_URL + '/manu.jpg'} onError={(e) => {e.target.onerror = null; e.target.src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}} alt="Manu Naik K" /></div>
+            <div className="profile-img-container"><img src={process.env.PUBLIC_URL + '/manu.jpg'} onError={(e) => {e.target.onerror = null; e.target.src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}} alt="Manu Naik k" /></div>
             <h3>Mandeep</h3><p className="profile-role">Software Engineer</p><p className="profile-bio">Welcome! I help engineering students with curated notes and updates.</p>
             <div style={{display: "flex", justifyContent: "center", gap: "20px", marginTop: "15px"}}>
                 <a href="https://github.com/manunaik0555" target="_blank" rel="noreferrer" style={{color: "var(--text-color)", fontSize: "1.8rem"}}><FaGithub /></a>
