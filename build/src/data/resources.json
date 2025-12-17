@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "branch": "CSE",
+    "semester": 7,
+    "subject": "Web Technology",
+    "subjectCode": "18CS71",
+    "modules": [
+      { "moduleName": "Module 1 - Intro to HTML", "link": "https://google.com" },
+      { "moduleName": "Module 2 - CSS Basics", "link": "https://google.com" }
+    ]
+  },
+  {
+    "id": 2,
+    "branch": "CSE",
+    "semester": 7,
+    "subject": "Advanced AI",
+    "subjectCode": "18CS72",
+    "modules": [
+      { "moduleName": "Full Notes", "link": "https://google.com" },
+      { "moduleName": "Question Bank", "link": "https://google.com" }
+    ]
+  },
+  {
+    "id": 3,
+    "branch": "CSE",
+    "semester": 5,
+    "subject": "Database Management",
+    "subjectCode": "18CS51",
+    "modules": [
+      { "moduleName": "Module 1 - SQL", "link": "https://google.com" }
+    ]
+  }
+]
