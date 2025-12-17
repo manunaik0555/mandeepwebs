@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Admin from './Admin';
 import Marquee from "react-fast-marquee";
-// FIXED: Added FaWhatsapp and FaTelegram to imports
 import { 
   FaUniversity, FaWhatsapp, FaTelegram, FaBars, FaTimes, 
   FaLaptopCode, FaMicrochip, FaCogs, FaBuilding, FaFlask, FaAtom,
@@ -10,14 +9,13 @@ import {
   FaGithub, FaLinkedin, FaFileUpload,
   FaSun, FaMoon 
 } from 'react-icons/fa';
-// FIXED: Added framer-motion import
 import { motion } from 'framer-motion';
 import './App.css';
 
 function App() {
   const [subjects, setSubjects] = useState([]);
   const [syllabusList, setSyllabusList] = useState([]); 
-  const [loading, setLoading] = useState(true); // Keeping this to avoid "unused var" warning if you use it later, or you can remove it.
+  const [loading, setLoading] = useState(true); 
   
   // --- THEME STATE ---
   const [darkMode, setDarkMode] = useState(false);
@@ -38,7 +36,7 @@ function App() {
 
   // FORMS
   const [feedback, setFeedback] = useState({ name: "", message: "" });
-  const [feedbackStatus, setFeedbackStatus] = useState(""); // Kept for logic
+  const [feedbackStatus, setFeedbackStatus] = useState(""); 
   const [contribData, setContribData] = useState({ name: "", branch: "CSE", scheme: "2022 Scheme", semester: "3", subject: "", link: "" });
   const [contribStatus, setContribStatus] = useState("");
 
@@ -103,7 +101,11 @@ function App() {
     <div className={`app-container ${darkMode ? 'dark-mode' : ''}`}>
       <nav className="navbar">
         <div className="nav-content">
-          <div className="logo-section" onClick={() => handleNavClick("home")}><div className="logo-icon"><FaUniversity /></div><h1>Mandeep's Guide</h1></div>
+          <div className="logo-section" onClick={() => handleNavClick("home")}>
+            <div className="logo-icon"><FaUniversity /></div>
+            {/* UPDATED: Title to Manu's Guide */}
+            <h1>Manu's Guide</h1>
+          </div>
           
           <div className={`nav-links ${mobileMenuOpen ? "mobile-open" : ""}`}>
             <span onClick={() => handleNavClick("home")}>Home</span><span onClick={() => handleNavClick("syllabus")}>Syllabus</span><span onClick={() => handleNavClick("results")}>Results</span>
@@ -184,11 +186,11 @@ function App() {
                       <hr style={{margin:"10px 0", borderColor:"#fda4af"}}/>
                       <p><strong>DB Check for {currentBranch}:</strong></p>
                       <ul style={{fontSize:"0.9rem"}}>
-                         {subjects.filter(s => s.branch === currentBranch).length === 0 ? "No notes for this branch." : subjects.filter(s => s.branch === currentBranch).map(s => (
-                           <li key={s._id}>
-                             <b>{s.subject}</b> — Sem: {s.semester}, Scheme: "{s.scheme || 'MISSING'}"
-                           </li>
-                         ))}
+                          {subjects.filter(s => s.branch === currentBranch).length === 0 ? "No notes for this branch." : subjects.filter(s => s.branch === currentBranch).map(s => (
+                            <li key={s._id}>
+                              <b>{s.subject}</b> — Sem: {s.semester}, Scheme: "{s.scheme || 'MISSING'}"
+                            </li>
+                          ))}
                       </ul>
                       <p style={{marginTop:"10px"}}><i>If Scheme is "MISSING", delete the note in Admin and Re-upload.</i></p>
                     </div>
@@ -217,7 +219,10 @@ function App() {
         <div className="sidebar-column">
           <div className="sidebar-widget profile-widget">
             <div className="profile-img-container"><img src={process.env.PUBLIC_URL + '/manu.jpg'} onError={(e) => {e.target.onerror = null; e.target.src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}} alt="Manu Naik k" /></div>
-            <h3>Mandeep</h3><p className="profile-role">Software Engineer</p><p className="profile-bio">Welcome! I help engineering students with curated notes and updates.</p>
+            
+            {/* UPDATED: Profile Name */}
+            <h3>Manu Naik K</h3>
+            <p className="profile-role">Software Engineer</p><p className="profile-bio">Welcome! I help engineering students with curated notes and updates.</p>
             <div style={{display: "flex", justifyContent: "center", gap: "20px", marginTop: "15px"}}>
                 <a href="https://github.com/manunaik0555" target="_blank" rel="noreferrer" style={{color: "var(--text-color)", fontSize: "1.8rem"}}><FaGithub /></a>
                 <a href="https://www.linkedin.com/in/manu-naik-590364280/" target="_blank" rel="noreferrer" style={{color: "#0077b5", fontSize: "1.8rem"}}><FaLinkedin /></a>
@@ -251,7 +256,9 @@ function App() {
           <div className="sidebar-widget"><h3><FaCommentDots style={{color:"#2563eb", marginRight:"5px"}}/> Feedback</h3><form onSubmit={handleFeedbackSubmit} style={{display:"flex", flexDirection:"column", gap:"10px"}}><input placeholder="Name" value={feedback.name} onChange={e=>setFeedback({...feedback, name:e.target.value})} className="input-field"/><textarea placeholder="Message" value={feedback.message} onChange={e=>setFeedback({...feedback, message:e.target.value})} className="input-field"/><button type="submit" style={{background:"#2563eb", color:"white", padding:"8px", border:"none", borderRadius:"5px", cursor:"pointer"}}><FaPaperPlane size={12}/> Send</button></form></div>
         </div>
       </div>
-      <footer className="footer"><p>© 2025 developed and designed by @ manunaik0555</p></footer>
+      
+      {/* UPDATED: Footer Text */}
+      <footer className="footer"><p>© 2025 Designed and Developed by @ manunaik0555</p></footer>
     </div>
   );
 }
