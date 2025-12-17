@@ -251,7 +251,7 @@ function App() {
           <div className="sidebar-widget"><h3><FaCommentDots style={{color:"#2563eb", marginRight:"5px"}}/> Feedback</h3><form onSubmit={handleFeedbackSubmit} style={{display:"flex", flexDirection:"column", gap:"10px"}}><input placeholder="Name" value={feedback.name} onChange={e=>setFeedback({...feedback, name:e.target.value})} className="input-field"/><textarea placeholder="Message" value={feedback.message} onChange={e=>setFeedback({...feedback, message:e.target.value})} className="input-field"/><button type="submit" style={{background:"#2563eb", color:"white", padding:"8px", border:"none", borderRadius:"5px", cursor:"pointer"}}><FaPaperPlane size={12}/> Send</button></form></div>
         </div>
       </div>
-      <footer className="footer"><p>© 2025 developed and designed by @manunaik0555</p></footer>
+      <footer className="footer"><p>© 2025 developed and designed by @ manunaik0555</p></footer>
     </div>
   );
 }
