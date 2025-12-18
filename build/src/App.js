@@ -7,7 +7,7 @@ import {
   FaFileAlt, FaDownload, FaTrophy, FaBookOpen, 
   FaArrowLeft, FaCalendarAlt, FaCommentDots, FaPaperPlane,
   FaGithub, FaLinkedin, FaFileUpload,
-  FaSun, FaMoon 
+  FaSun, FaMoon, FaSearch // 👈 ADDED FaSearch
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import './App.css';
@@ -31,6 +31,9 @@ function App() {
   const [currentScheme, setCurrentScheme] = useState(null);
   const [currentSemester, setCurrentSemester] = useState(null);
   
+  // 🔍 NEW: SEARCH STATE
+  const [searchTerm, setSearchTerm] = useState("");
+
   // SYLLABUS
   const [syllabusBranch, setSyllabusBranch] = useState(null);
   const [syllabusScheme, setSyllabusScheme] = useState(null);
@@ -73,6 +76,7 @@ function App() {
     setActivePage(page); setIsAdmin(false); setMobileMenuOpen(false);
     setCurrentBranch("ALL"); setCurrentScheme(null); setCurrentSemester(null); 
     setSyllabusBranch(null); setSyllabusScheme(null);
+    setSearchTerm(""); // Clear search when changing pages
   };
 
   const handleFeedbackSubmit = async (e) => {
@@ -94,6 +98,15 @@ function App() {
       setTimeout(() => setContribStatus(""), 3000); 
     } catch (err) { setContribStatus("❌ Error."); }
   };
+
+  // 🔍 SEARCH FILTER LOGIC
+  const filteredSubjects = subjects.filter((sub) => {
+    if (searchTerm === "") return false; // Don't show anything if search is empty
+    const lowerTerm = searchTerm.toLowerCase();
+    const code = sub.subjectCode ? sub.subjectCode.toLowerCase() : "";
+    const name = sub.subject ? sub.subject.toLowerCase() : "";
+    return code.includes(lowerTerm) || name.includes(lowerTerm);
+  });
 
   const availableSchemes = [...new Set(syllabusList.filter(item => item.branch === syllabusBranch).map(item => item.scheme))].sort().reverse(); 
   const currentSyllabusLink = syllabusList.find(s => s.branch === syllabusBranch && s.scheme === syllabusScheme)?.link;
@@ -131,85 +144,140 @@ function App() {
         ) : (
           <div className="content-column">
             
-            {/* STEP 1: DEPARTMENTS */}
+            {/* 🔍 SEARCH BAR SECTION (NEW) */}
             {currentBranch === "ALL" && (
-              <section>
-                <h3 className="section-title">Departments</h3>
-                <div className="dept-grid">
-                  {departments.map((dept) => (
-                    <motion.div key={dept.id} whileHover={{ scale: 1.05 }} onClick={() => { setCurrentBranch(dept.id); setCurrentScheme(null); setCurrentSemester(null); }} className={`dept-card ${dept.color}`}>
-                      <div className="dept-icon">{dept.icon}</div>
-                      <h4>{dept.name}</h4>
-                    </motion.div>
-                  ))}
+              <div style={{marginBottom: "30px", padding: "0 10px"}}>
+                <div style={{
+                  display: "flex", 
+                  alignItems: "center", 
+                  background: "white", 
+                  padding: "12px 20px", 
+                  borderRadius: "50px", 
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
+                  border: "1px solid #eee"
+                }}>
+                  <FaSearch style={{color: "#9ca3af", marginRight: "10px"}} />
+                  <input 
+                    type="text" 
+                    placeholder="Search by Subject Code or Name..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{
+                      border: "none", 
+                      outline: "none", 
+                      width: "100%", 
+                      fontSize: "1rem", 
+                      color: "#333"
+                    }}
+                  />
                 </div>
-                {/* LATEST UPDATES (Clean List) */}
-                <section className="uploads-section">
-                  <h3 className="section-title">Latest Updates</h3>
-                  <div className="uploads-list">
-                    {subjects.slice(0,3).map(sub=>(
-                      <div key={sub._id} className="upload-card">
-                        <div className="upload-info">
-                          <h4>{sub.subject}</h4>
-                          <small>{sub.branch} | {sub.scheme || "No Scheme"}</small>
-                        </div>
-                        <a href={sub.link} target="_blank" rel="noreferrer" className="btn-download"><FaDownload /></a>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-              </section>
+              </div>
             )}
 
-            {/* STEP 2: SCHEME */}
-            {currentBranch !== "ALL" && currentScheme === null && (<section><button onClick={() => setCurrentBranch("ALL")} className="back-btn"><FaArrowLeft /> Back</button><h3 className="section-title">Select Scheme for {currentBranch}</h3><div className="dept-grid">{["2024 Scheme", "2022 Scheme", "2021 Scheme", "2018 Scheme"].map((scheme) => (<motion.div key={scheme} whileHover={{ scale: 1.05 }} onClick={() => setCurrentScheme(scheme)} className="dept-card" style={{borderLeft: "5px solid #2563eb"}}><FaCalendarAlt style={{fontSize:"1.5rem", color:"#2563eb", marginBottom:"10px"}}/><h4>{scheme}</h4></motion.div>))}</div></section>)}
-
-            {/* STEP 3: SEMESTERS */}
-            {currentBranch !== "ALL" && currentScheme !== null && currentSemester === null && (<section><button onClick={() => setCurrentScheme(null)} className="back-btn"><FaArrowLeft /> Back</button><h3 className="section-title">Select Semester</h3><div className="dept-grid">{(currentBranch === "P-CYCLE" || currentBranch === "C-CYCLE" ? [1, 2] : [3, 4, 5, 6, 7, 8]).map((sem) => (<motion.div key={sem} whileHover={{ scale: 1.05 }} onClick={() => setCurrentSemester(sem)} className="dept-card"><h4>{sem}th Sem</h4></motion.div>))}</div></section>)}
-
-            {/* STEP 4: NOTES LIST */}
-            {currentBranch !== "ALL" && currentScheme !== null && currentSemester !== null && (
-              <section className="uploads-section">
-                <button onClick={() => setCurrentSemester(null)} className="back-btn"><FaArrowLeft /> Back</button>
-                <h3 className="section-title">{currentSemester}th Sem ({currentScheme}) - {currentBranch}</h3>
-                <div className="uploads-list">
-                  {subjects.filter(sub => 
-                      sub.branch === currentBranch && 
-                      String(sub.semester) === String(currentSemester) && 
-                      (sub.scheme && sub.scheme.trim() === currentScheme)
-                  ).length === 0 ? (
-                    <div style={{background: "#fff1f2", border: "2px solid #e11d48", borderRadius: "10px", padding: "20px", color: "#881337"}}>
-                      <h3>⚠️ No Notes Found (Debug Mode)</h3>
-                      <p>You selected: <b>{currentBranch}</b>, <b>{currentScheme}</b>, <b>{currentSemester}th Sem</b></p>
-                      <hr style={{margin:"10px 0", borderColor:"#fda4af"}}/>
-                      <p><strong>DB Check for {currentBranch}:</strong></p>
-                      <ul style={{fontSize:"0.9rem"}}>
-                          {subjects.filter(s => s.branch === currentBranch).length === 0 ? "No notes for this branch." : subjects.filter(s => s.branch === currentBranch).map(s => (
-                            <li key={s._id}>
-                              <b>{s.subject}</b> — Sem: {s.semester}, Scheme: "{s.scheme || 'MISSING'}"
-                            </li>
-                          ))}
-                      </ul>
-                      <p style={{marginTop:"10px"}}><i>If Scheme is "MISSING", delete the note in Admin and Re-upload.</i></p>
-                    </div>
-
-                  ) : (
-                    subjects.filter(sub => 
-                      sub.branch === currentBranch && 
-                      String(sub.semester) === String(currentSemester) && 
-                      (sub.scheme && sub.scheme.trim() === currentScheme)
-                    ).map((sub) => (
+            {/* 🔍 SEARCH RESULTS VIEW */}
+            {searchTerm.length > 0 ? (
+               <section className="uploads-section">
+                 <h3 className="section-title">🔍 Search Results</h3>
+                 <div className="uploads-list">
+                   {filteredSubjects.length === 0 ? (
+                     <p style={{textAlign: "center", padding: "20px", color: "#666"}}>No notes found matching "{searchTerm}"</p>
+                   ) : (
+                     filteredSubjects.map((sub) => (
                       <div key={sub._id} className="upload-card">
                         <div className="upload-info">
                           <h4>{sub.subject}</h4>
-                          <small style={{color: "#3b82f6", fontWeight: "bold"}}>{sub.subjectCode}</small>
+                          <small style={{color: "#3b82f6", fontWeight: "bold", marginRight: "10px"}}>{sub.subjectCode}</small>
+                          <small>{sub.branch} | {sub.semester}th Sem</small>
                         </div>
                         <a href={sub.link} target="_blank" rel="noreferrer" className="btn-download"><FaDownload /></a>
                       </div>
-                    ))
-                  )}
-                </div>
-              </section>
+                     ))
+                   )}
+                 </div>
+               </section>
+            ) : (
+              // NORMAL VIEW (If not searching)
+              <>
+                {/* STEP 1: DEPARTMENTS */}
+                {currentBranch === "ALL" && (
+                  <section>
+                    <h3 className="section-title">Departments</h3>
+                    <div className="dept-grid">
+                      {departments.map((dept) => (
+                        <motion.div key={dept.id} whileHover={{ scale: 1.05 }} onClick={() => { setCurrentBranch(dept.id); setCurrentScheme(null); setCurrentSemester(null); }} className={`dept-card ${dept.color}`}>
+                          <div className="dept-icon">{dept.icon}</div>
+                          <h4>{dept.name}</h4>
+                        </motion.div>
+                      ))}
+                    </div>
+                    {/* LATEST UPDATES (Clean List) */}
+                    <section className="uploads-section">
+                      <h3 className="section-title">Latest Updates</h3>
+                      <div className="uploads-list">
+                        {subjects.slice(0,3).map(sub=>(
+                          <div key={sub._id} className="upload-card">
+                            <div className="upload-info">
+                              <h4>{sub.subject}</h4>
+                              <small>{sub.branch} | {sub.scheme || "No Scheme"}</small>
+                            </div>
+                            <a href={sub.link} target="_blank" rel="noreferrer" className="btn-download"><FaDownload /></a>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  </section>
+                )}
+
+                {/* STEP 2: SCHEME */}
+                {currentBranch !== "ALL" && currentScheme === null && (<section><button onClick={() => setCurrentBranch("ALL")} className="back-btn"><FaArrowLeft /> Back</button><h3 className="section-title">Select Scheme for {currentBranch}</h3><div className="dept-grid">{["2024 Scheme", "2022 Scheme", "2021 Scheme", "2018 Scheme"].map((scheme) => (<motion.div key={scheme} whileHover={{ scale: 1.05 }} onClick={() => setCurrentScheme(scheme)} className="dept-card" style={{borderLeft: "5px solid #2563eb"}}><FaCalendarAlt style={{fontSize:"1.5rem", color:"#2563eb", marginBottom:"10px"}}/><h4>{scheme}</h4></motion.div>))}</div></section>)}
+
+                {/* STEP 3: SEMESTERS */}
+                {currentBranch !== "ALL" && currentScheme !== null && currentSemester === null && (<section><button onClick={() => setCurrentScheme(null)} className="back-btn"><FaArrowLeft /> Back</button><h3 className="section-title">Select Semester</h3><div className="dept-grid">{(currentBranch === "P-CYCLE" || currentBranch === "C-CYCLE" ? [1, 2] : [3, 4, 5, 6, 7, 8]).map((sem) => (<motion.div key={sem} whileHover={{ scale: 1.05 }} onClick={() => setCurrentSemester(sem)} className="dept-card"><h4>{sem}th Sem</h4></motion.div>))}</div></section>)}
+
+                {/* STEP 4: NOTES LIST */}
+                {currentBranch !== "ALL" && currentScheme !== null && currentSemester !== null && (
+                  <section className="uploads-section">
+                    <button onClick={() => setCurrentSemester(null)} className="back-btn"><FaArrowLeft /> Back</button>
+                    <h3 className="section-title">{currentSemester}th Sem ({currentScheme}) - {currentBranch}</h3>
+                    <div className="uploads-list">
+                      {subjects.filter(sub => 
+                          sub.branch === currentBranch && 
+                          String(sub.semester) === String(currentSemester) && 
+                          (sub.scheme && sub.scheme.trim() === currentScheme)
+                      ).length === 0 ? (
+                        <div style={{background: "#fff1f2", border: "2px solid #e11d48", borderRadius: "10px", padding: "20px", color: "#881337"}}>
+                          <h3>⚠️ No Notes Found (Debug Mode)</h3>
+                          <p>You selected: <b>{currentBranch}</b>, <b>{currentScheme}</b>, <b>{currentSemester}th Sem</b></p>
+                          <hr style={{margin:"10px 0", borderColor:"#fda4af"}}/>
+                          <p><strong>DB Check for {currentBranch}:</strong></p>
+                          <ul style={{fontSize:"0.9rem"}}>
+                              {subjects.filter(s => s.branch === currentBranch).length === 0 ? "No notes for this branch." : subjects.filter(s => s.branch === currentBranch).map(s => (
+                                <li key={s._id}>
+                                  <b>{s.subject}</b> — Sem: {s.semester}, Scheme: "{s.scheme || 'MISSING'}"
+                                </li>
+                              ))}
+                          </ul>
+                          <p style={{marginTop:"10px"}}><i>If Scheme is "MISSING", delete the note in Admin and Re-upload.</i></p>
+                        </div>
+                      ) : (
+                        subjects.filter(sub => 
+                          sub.branch === currentBranch && 
+                          String(sub.semester) === String(currentSemester) && 
+                          (sub.scheme && sub.scheme.trim() === currentScheme)
+                        ).map((sub) => (
+                          <div key={sub._id} className="upload-card">
+                            <div className="upload-info">
+                              <h4>{sub.subject}</h4>
+                              <small style={{color: "#3b82f6", fontWeight: "bold"}}>{sub.subjectCode}</small>
+                            </div>
+                            <a href={sub.link} target="_blank" rel="noreferrer" className="btn-download"><FaDownload /></a>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </section>
+                )}
+              </>
             )}
           </div>
         )}
@@ -249,18 +317,15 @@ function App() {
             {contribStatus && <p style={{marginTop:"5px", fontSize:"0.8rem", color:"#16a34a"}}>{contribStatus}</p>}
           </div>
 
-          {/* 🛑 HIDE THESE WHEN ADMIN IS LOGGED IN */}
           {!isAdmin && (
             <>
-              <div className="sidebar-widget gradient-widget"><h3>Join Community</h3><button className="btn-social whatsapp" onClick={() => window.open('https://chat.whatsapp.com/LSBNjg50ugp4JMpcsd7dOG', '_blank')}><FaWhatsapp /> WhatsApp</button></div>
+              <div className="sidebar-widget gradient-widget"><h3>Join Community</h3><button className="btn-social whatsapp" onClick={() => window.open('https://chat.whatsapp.com/YOUR_LINK', '_blank')}><FaWhatsapp /> WhatsApp</button></div>
               <div className="sidebar-widget"><h3><FaCommentDots style={{color:"#2563eb", marginRight:"5px"}}/> Feedback</h3><form onSubmit={handleFeedbackSubmit} style={{display:"flex", flexDirection:"column", gap:"10px"}}><input placeholder="Name" value={feedback.name} onChange={e=>setFeedback({...feedback, name:e.target.value})} className="input-field"/><textarea placeholder="Message" value={feedback.message} onChange={e=>setFeedback({...feedback, message:e.target.value})} className="input-field"/><button type="submit" style={{background:"#2563eb", color:"white", padding:"8px", border:"none", borderRadius:"5px", cursor:"pointer"}}><FaPaperPlane size={12}/> Send</button></form></div>
             </>
           )}
-
         </div>
       </div>
       
-      {/* 🛑 CONTACT SECTION HIDDEN ON ADMIN */}
       {!isAdmin && <Contact />}
 
       <footer className="footer"><p>© 2025 Designed and Developed by @ manunaik0555</p></footer>

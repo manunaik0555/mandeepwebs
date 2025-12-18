@@ -65,11 +65,16 @@ app.post('/api/add-admin', async (req, res) => {
 
 // Subject Schema
 const subjectSchema = new mongoose.Schema({
-  branch: String,
-  semester: Number,
-  subject: String,
-  subjectCode: String,
-  link: String
+    subject: String,
+    subjectCode: String,
+    branch: String,
+    semester: String,
+
+    scheme: String,  // 👈 YOU MUST ADD THIS LINE!
+
+    link: String,
+    module: String,
+    createdAt: { type: Date, default: Date.now }
 });
 const Subject = mongoose.model('Subject', subjectSchema);
 
