@@ -7,7 +7,7 @@ import {
   FaFileAlt, FaDownload, FaTrophy, FaBookOpen, 
   FaArrowLeft, FaCalendarAlt, FaCommentDots, FaPaperPlane,
   FaGithub, FaLinkedin, FaFileUpload,
-  FaSun, FaMoon, FaSearch // 👈 ADDED FaSearch
+  FaSun, FaMoon, FaSearch, FaFolderOpen 
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import './App.css';
@@ -31,7 +31,7 @@ function App() {
   const [currentScheme, setCurrentScheme] = useState(null);
   const [currentSemester, setCurrentSemester] = useState(null);
   
-  // 🔍 NEW: SEARCH STATE
+  // SEARCH STATE
   const [searchTerm, setSearchTerm] = useState("");
 
   // SYLLABUS
@@ -76,7 +76,7 @@ function App() {
     setActivePage(page); setIsAdmin(false); setMobileMenuOpen(false);
     setCurrentBranch("ALL"); setCurrentScheme(null); setCurrentSemester(null); 
     setSyllabusBranch(null); setSyllabusScheme(null);
-    setSearchTerm(""); // Clear search when changing pages
+    setSearchTerm(""); 
   };
 
   const handleFeedbackSubmit = async (e) => {
@@ -99,9 +99,9 @@ function App() {
     } catch (err) { setContribStatus("❌ Error."); }
   };
 
-  // 🔍 SEARCH FILTER LOGIC
+  // SEARCH FILTER LOGIC
   const filteredSubjects = subjects.filter((sub) => {
-    if (searchTerm === "") return false; // Don't show anything if search is empty
+    if (searchTerm === "") return false; 
     const lowerTerm = searchTerm.toLowerCase();
     const code = sub.subjectCode ? sub.subjectCode.toLowerCase() : "";
     const name = sub.subject ? sub.subject.toLowerCase() : "";
@@ -144,37 +144,21 @@ function App() {
         ) : (
           <div className="content-column">
             
-            {/* 🔍 SEARCH BAR SECTION (NEW) */}
+            {/* SEARCH BAR SECTION */}
             {currentBranch === "ALL" && (
               <div style={{marginBottom: "30px", padding: "0 10px"}}>
                 <div style={{
-                  display: "flex", 
-                  alignItems: "center", 
-                  background: "white", 
-                  padding: "12px 20px", 
-                  borderRadius: "50px", 
-                  boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
-                  border: "1px solid #eee"
+                  display: "flex", alignItems: "center", background: "white", padding: "12px 20px", borderRadius: "50px", 
+                  boxShadow: "0 4px 15px rgba(0,0,0,0.05)", border: "1px solid #eee"
                 }}>
                   <FaSearch style={{color: "#9ca3af", marginRight: "10px"}} />
-                  <input 
-                    type="text" 
-                    placeholder="Search by Subject Code or Name..." 
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{
-                      border: "none", 
-                      outline: "none", 
-                      width: "100%", 
-                      fontSize: "1rem", 
-                      color: "#333"
-                    }}
-                  />
+                  <input type="text" placeholder="Search by Subject Code or Name..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{ border: "none", outline: "none", width: "100%", fontSize: "1rem", color: "#333"}} />
                 </div>
               </div>
             )}
 
-            {/* 🔍 SEARCH RESULTS VIEW */}
+            {/* SEARCH RESULTS VIEW */}
             {searchTerm.length > 0 ? (
                <section className="uploads-section">
                  <h3 className="section-title">🔍 Search Results</h3>
@@ -196,7 +180,6 @@ function App() {
                  </div>
                </section>
             ) : (
-              // NORMAL VIEW (If not searching)
               <>
                 {/* STEP 1: DEPARTMENTS */}
                 {currentBranch === "ALL" && (
@@ -210,7 +193,7 @@ function App() {
                         </motion.div>
                       ))}
                     </div>
-                    {/* LATEST UPDATES (Clean List) */}
+                    {/* LATEST UPDATES */}
                     <section className="uploads-section">
                       <h3 className="section-title">Latest Updates</h3>
                       <div className="uploads-list">
@@ -245,20 +228,14 @@ function App() {
                           String(sub.semester) === String(currentSemester) && 
                           (sub.scheme && sub.scheme.trim() === currentScheme)
                       ).length === 0 ? (
-                        <div style={{background: "#fff1f2", border: "2px solid #e11d48", borderRadius: "10px", padding: "20px", color: "#881337"}}>
-                          <h3>⚠️ No Notes Found (Debug Mode)</h3>
-                          <p>You selected: <b>{currentBranch}</b>, <b>{currentScheme}</b>, <b>{currentSemester}th Sem</b></p>
-                          <hr style={{margin:"10px 0", borderColor:"#fda4af"}}/>
-                          <p><strong>DB Check for {currentBranch}:</strong></p>
-                          <ul style={{fontSize:"0.9rem"}}>
-                              {subjects.filter(s => s.branch === currentBranch).length === 0 ? "No notes for this branch." : subjects.filter(s => s.branch === currentBranch).map(s => (
-                                <li key={s._id}>
-                                  <b>{s.subject}</b> — Sem: {s.semester}, Scheme: "{s.scheme || 'MISSING'}"
-                                </li>
-                              ))}
-                          </ul>
-                          <p style={{marginTop:"10px"}}><i>If Scheme is "MISSING", delete the note in Admin and Re-upload.</i></p>
+                        
+                        // 👇 CLEAN EMPTY STATE (NO MORE DEBUG BOX)
+                        <div style={{textAlign: "center", padding: "50px 20px", color: "#6b7280"}}>
+                           <FaFolderOpen style={{fontSize: "3rem", color: "#d1d5db", marginBottom: "15px"}} />
+                           <h3>No Notes Uploaded Yet</h3>
+                           <p>We are updating this section. Check back soon!</p>
                         </div>
+
                       ) : (
                         subjects.filter(sub => 
                           sub.branch === currentBranch && 
