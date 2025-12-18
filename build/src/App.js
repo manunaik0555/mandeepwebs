@@ -11,6 +11,7 @@ import {
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import './App.css';
+import Contact from './Contact';
 
 function App() {
   const [subjects, setSubjects] = useState([]);
@@ -103,7 +104,6 @@ function App() {
         <div className="nav-content">
           <div className="logo-section" onClick={() => handleNavClick("home")}>
             <div className="logo-icon"><FaUniversity /></div>
-            {/* UPDATED: Title to Manu's Guide */}
             <h1>Manu's Guide</h1>
           </div>
           
@@ -167,7 +167,7 @@ function App() {
             {/* STEP 3: SEMESTERS */}
             {currentBranch !== "ALL" && currentScheme !== null && currentSemester === null && (<section><button onClick={() => setCurrentScheme(null)} className="back-btn"><FaArrowLeft /> Back</button><h3 className="section-title">Select Semester</h3><div className="dept-grid">{(currentBranch === "P-CYCLE" || currentBranch === "C-CYCLE" ? [1, 2] : [3, 4, 5, 6, 7, 8]).map((sem) => (<motion.div key={sem} whileHover={{ scale: 1.05 }} onClick={() => setCurrentSemester(sem)} className="dept-card"><h4>{sem}th Sem</h4></motion.div>))}</div></section>)}
 
-            {/* STEP 4: NOTES LIST (ROBUST FILTERING) */}
+            {/* STEP 4: NOTES LIST */}
             {currentBranch !== "ALL" && currentScheme !== null && currentSemester !== null && (
               <section className="uploads-section">
                 <button onClick={() => setCurrentSemester(null)} className="back-btn"><FaArrowLeft /> Back</button>
@@ -175,11 +175,9 @@ function App() {
                 <div className="uploads-list">
                   {subjects.filter(sub => 
                       sub.branch === currentBranch && 
-                      String(sub.semester) === String(currentSemester) && // Loose equality for numbers
-                      (sub.scheme && sub.scheme.trim() === currentScheme) // Check scheme existence
+                      String(sub.semester) === String(currentSemester) && 
+                      (sub.scheme && sub.scheme.trim() === currentScheme)
                   ).length === 0 ? (
-                    
-                    /* DEBUG BOX IF EMPTY */
                     <div style={{background: "#fff1f2", border: "2px solid #e11d48", borderRadius: "10px", padding: "20px", color: "#881337"}}>
                       <h3>⚠️ No Notes Found (Debug Mode)</h3>
                       <p>You selected: <b>{currentBranch}</b>, <b>{currentScheme}</b>, <b>{currentSemester}th Sem</b></p>
@@ -220,7 +218,6 @@ function App() {
           <div className="sidebar-widget profile-widget">
             <div className="profile-img-container"><img src={process.env.PUBLIC_URL + '/manu.jpg'} onError={(e) => {e.target.onerror = null; e.target.src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}} alt="Manu Naik k" /></div>
             
-            {/* UPDATED: Profile Name */}
             <h3>Manu Naik K</h3>
             <p className="profile-role">Software Engineer</p><p className="profile-bio">Welcome! I help engineering students with Acurated notes and updates.</p>
             <div style={{display: "flex", justifyContent: "center", gap: "20px", marginTop: "15px"}}>
@@ -252,12 +249,20 @@ function App() {
             {contribStatus && <p style={{marginTop:"5px", fontSize:"0.8rem", color:"#16a34a"}}>{contribStatus}</p>}
           </div>
 
-          <div className="sidebar-widget gradient-widget"><h3>Join Community</h3><button className="btn-social whatsapp" onClick={() => window.open('https://chat.whatsapp.com/YOUR_LINK', '_blank')}><FaWhatsapp /> WhatsApp</button></div>
-          <div className="sidebar-widget"><h3><FaCommentDots style={{color:"#2563eb", marginRight:"5px"}}/> Feedback</h3><form onSubmit={handleFeedbackSubmit} style={{display:"flex", flexDirection:"column", gap:"10px"}}><input placeholder="Name" value={feedback.name} onChange={e=>setFeedback({...feedback, name:e.target.value})} className="input-field"/><textarea placeholder="Message" value={feedback.message} onChange={e=>setFeedback({...feedback, message:e.target.value})} className="input-field"/><button type="submit" style={{background:"#2563eb", color:"white", padding:"8px", border:"none", borderRadius:"5px", cursor:"pointer"}}><FaPaperPlane size={12}/> Send</button></form></div>
+          {/* 🛑 HIDE THESE WHEN ADMIN IS LOGGED IN */}
+          {!isAdmin && (
+            <>
+              <div className="sidebar-widget gradient-widget"><h3>Join Community</h3><button className="btn-social whatsapp" onClick={() => window.open('https://chat.whatsapp.com/YOUR_LINK', '_blank')}><FaWhatsapp /> WhatsApp</button></div>
+              <div className="sidebar-widget"><h3><FaCommentDots style={{color:"#2563eb", marginRight:"5px"}}/> Feedback</h3><form onSubmit={handleFeedbackSubmit} style={{display:"flex", flexDirection:"column", gap:"10px"}}><input placeholder="Name" value={feedback.name} onChange={e=>setFeedback({...feedback, name:e.target.value})} className="input-field"/><textarea placeholder="Message" value={feedback.message} onChange={e=>setFeedback({...feedback, message:e.target.value})} className="input-field"/><button type="submit" style={{background:"#2563eb", color:"white", padding:"8px", border:"none", borderRadius:"5px", cursor:"pointer"}}><FaPaperPlane size={12}/> Send</button></form></div>
+            </>
+          )}
+
         </div>
       </div>
       
-      {/* UPDATED: Footer Text */}
+      {/* 🛑 CONTACT SECTION HIDDEN ON ADMIN */}
+      {!isAdmin && <Contact />}
+
       <footer className="footer"><p>© 2025 Designed and Developed by @ manunaik0555</p></footer>
     </div>
   );

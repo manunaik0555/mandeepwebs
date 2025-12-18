@@ -1,0 +1,125 @@
+/* src/Contact.css */
+
+.contact-section {
+  padding: 60px 20px;
+  background: linear-gradient(to bottom, transparent, #f0fdf4); /* Subtle fade at bottom */
+  text-align: center;
+  border-top: 1px solid #e5e7eb;
+  margin-top: 40px;
+}
+
+.contact-heading {
+  font-size: 1.8rem;
+  color: #1f2937;
+  margin-bottom: 40px;
+  font-weight: 700;
+}
+
+/* Container to hold cards side-by-side */
+.team-container {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap; /* Wraps on mobile */
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* --- THE PROFILE CARD (Matches Author Widget) --- */
+.profile-card {
+  background: white;
+  width: 320px;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08); /* Premium Shadow */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #f3f4f6;
+  text-align: center;
+}
+
+.profile-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+}
+
+/* Image Circle */
+.profile-img-box {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 15px auto;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid #16a34a; /* Green border like sidebar */
+  padding: 3px;
+  background: white;
+}
+
+.profile-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Typography */
+.profile-card h3 {
+  margin: 10px 0 5px 0;
+  font-size: 1.4rem;
+  color: #111;
+}
+
+.role {
+  color: #16a34a; /* Green accent color */
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bio {
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+/* Social Icons Row */
+.social-row {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f3f4f6;
+  color: #374151;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+/* Icon Hover Colors */
+.icon-btn:hover {
+  transform: scale(1.1);
+  color: white;
+}
+
+.icon-btn.github:hover { background-color: #333; }
+.icon-btn.insta:hover { background-color: #E1306C; }
+.icon-btn.email:hover { background-color: #007bff; }
+
+/* Dark Mode Support (Optional - matches your app) */
+.dark-mode .profile-card {
+  background: #1f2937;
+  border-color: #374151;
+}
+.dark-mode .profile-card h3 { color: white; }
+.dark-mode .bio { color: #d1d5db; }
+.dark-mode .contact-heading { color: white; }
