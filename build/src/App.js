@@ -252,7 +252,7 @@ function App() {
           {/* 🛑 HIDE THESE WHEN ADMIN IS LOGGED IN */}
           {!isAdmin && (
             <>
-              <div className="sidebar-widget gradient-widget"><h3>Join Community</h3><button className="btn-social whatsapp" onClick={() => window.open('https://chat.whatsapp.com/YOUR_LINK', '_blank')}><FaWhatsapp /> WhatsApp</button></div>
+              <div className="sidebar-widget gradient-widget"><h3>Join Community</h3><button className="btn-social whatsapp" onClick={() => window.open('https://chat.whatsapp.com/LSBNjg50ugp4JMpcsd7dOG', '_blank')}><FaWhatsapp /> WhatsApp</button></div>
               <div className="sidebar-widget"><h3><FaCommentDots style={{color:"#2563eb", marginRight:"5px"}}/> Feedback</h3><form onSubmit={handleFeedbackSubmit} style={{display:"flex", flexDirection:"column", gap:"10px"}}><input placeholder="Name" value={feedback.name} onChange={e=>setFeedback({...feedback, name:e.target.value})} className="input-field"/><textarea placeholder="Message" value={feedback.message} onChange={e=>setFeedback({...feedback, message:e.target.value})} className="input-field"/><button type="submit" style={{background:"#2563eb", color:"white", padding:"8px", border:"none", borderRadius:"5px", cursor:"pointer"}}><FaPaperPlane size={12}/> Send</button></form></div>
             </>
           )}
