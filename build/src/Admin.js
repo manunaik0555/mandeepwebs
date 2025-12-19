@@ -1,175 +1,221 @@
 import React, { useState, useEffect } from 'react';
-import { FaTrash, FaFileUpload, FaLock, FaUnlock } from 'react-icons/fa';
-import toast, { Toaster } from 'react-hot-toast';
+import { 
+  FaTrash, FaCheck, FaPlus, FaList, FaBell, FaCommentDots, 
+  FaLock, FaKey, FaSignOutAlt, FaChartPie, FaFileAlt, FaUserGraduate 
+} from 'react-icons/fa';
 import './App.css'; 
 
-const Admin = () => {
-  // 🔐 SECURITY STATE
+function Admin() {
+  // --- AUTH STATE ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [password, setPassword] = useState("");
+  const [passwordInput, setPasswordInput] = useState("");
+  const [authError, setAuthError] = useState("");
+  const ADMIN_PASSWORD = "manu"; 
 
-  // --- EXISTING STATE ---
-  const [formData, setFormData] = useState({
-    subject: "", subjectCode: "", branch: "CSE",
-    scheme: "2022 Scheme", semester: "3", link: "", module: "1"
-  });
+  // --- DATA STATE ---
   const [subjects, setSubjects] = useState([]);
+  const [contributions, setContributions] = useState([]);
+  const [feedbacks, setFeedbacks] = useState([]);
+  
+  // --- UI STATE ---
+  const [activeTab, setActiveTab] = useState("dashboard"); // 'dashboard', 'requests', 'feedback', 'database', 'add'
+  const [status, setStatus] = useState("");
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      fetchNotes();
-    }
-  }, [isAuthenticated]);
+  // --- FORM STATE ---
+  const [newSubject, setNewSubject] = useState({ 
+    branch: "CSE", scheme: "2022 Scheme", semester: "3", subject: "", subjectCode: "", link: "" 
+  });
 
-  const fetchNotes = () => {
-    fetch('https://mandeepwebs.onrender.com/api/subjects')
-      .then(res => res.json()).then(data => setSubjects(data))
-      .catch(() => toast.error("Failed to load notes."));
+  // --- FETCH DATA ---
+  useEffect(() => { if(isAuthenticated) fetchData(); }, [isAuthenticated]);
+
+  const fetchData = () => {
+    fetch('https://mandeepwebs.onrender.com/api/subjects').then(res => res.json()).then(data => setSubjects(data)).catch(err => console.error(err));
+    fetch('https://mandeepwebs.onrender.com/api/contribute').then(res => res.json()).then(data => setContributions(data)).catch(err => console.error(err));
+    fetch('https://mandeepwebs.onrender.com/api/feedback').then(res => res.json()).then(data => setFeedbacks(data)).catch(err => console.error(err));
   };
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  // 🔐 LOGIN FUNCTION
+  // --- LOGIN ---
   const handleLogin = (e) => {
     e.preventDefault();
-    // 👇 CHANGE YOUR PASSWORD HERE
-    const MY_SECRET_PASSWORD = "manu"; 
-    
-    if (password === MY_SECRET_PASSWORD) {
-        setIsAuthenticated(true);
-        toast.success("Welcome Back, Manu!");
-    } else {
-        toast.error("Wrong Password! ❌");
-    }
+    if(passwordInput === ADMIN_PASSWORD) setIsAuthenticated(true);
+    else { setAuthError("❌ Wrong Password"); setPasswordInput(""); }
   };
 
-  // --- UPLOAD FUNCTION ---
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const loadingToast = toast.loading("Uploading Note...");
-
+  // --- HANDLERS ---
+  const handleAddSubject = async (e) => {
+    e.preventDefault(); setStatus("Adding...");
     try {
-      const response = await fetch('https://mandeepwebs.onrender.com/api/subjects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
-
-      if (response.ok) {
-        toast.dismiss(loadingToast);
-        toast.success("Note Uploaded Successfully! 🎉");
-        setFormData({ ...formData, subject: "", link: "", subjectCode: "" });
-        fetchNotes();
-      } else {
-        throw new Error("Upload failed");
-      }
-    } catch (error) {
-      toast.dismiss(loadingToast);
-      toast.error("Upload Failed.");
-    }
+        await fetch('https://mandeepwebs.onrender.com/api/subjects', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(newSubject) });
+        setStatus("✅ Note Added Successfully!"); setNewSubject({ ...newSubject, subject: "", subjectCode: "", link: "" }); fetchData();
+    } catch(err) { setStatus("❌ Error Adding Note"); }
   };
+  const handleDeleteSubject = async (id) => { if(!window.confirm("Delete this note permanently?")) return; await fetch(`https://mandeepwebs.onrender.com/api/subjects/${id}`, { method: 'DELETE' }); fetchData(); };
 
-  // --- DELETE FUNCTION ---
-  const handleDelete = async (id) => {
-    if(!window.confirm("Are you sure you want to delete this note?")) return;
-    const loadingToast = toast.loading("Deleting...");
-    try {
-      await fetch(`https://mandeepwebs.onrender.com/api/subjects/${id}`, { method: 'DELETE' });
-      toast.dismiss(loadingToast);
-      toast.success("Note Deleted!");
-      fetchNotes();
-    } catch (err) {
-      toast.dismiss(loadingToast);
-      toast.error("Could not delete.");
-    }
+  const handleApprove = async (contrib) => {
+    if (!window.confirm(`Approve ${contrib.subject}?`)) return; setStatus("Approving...");
+    const subjectData = { branch: contrib.branch, scheme: contrib.scheme || "2022 Scheme", semester: contrib.semester, subject: contrib.subject, subjectCode: "CONTRIB", link: contrib.link };
+    await fetch('https://mandeepwebs.onrender.com/api/subjects', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(subjectData) });
+    await fetch(`https://mandeepwebs.onrender.com/api/contribute/${contrib._id}`, { method: 'DELETE' });
+    setStatus("✅ Request Approved!"); fetchData();
   };
+  const handleDeleteContrib = async (id) => { if(!window.confirm("Reject request?")) return; await fetch(`https://mandeepwebs.onrender.com/api/contribute/${id}`, { method: 'DELETE' }); fetchData(); };
+  const handleDeleteFeedback = async (id) => { if(!window.confirm("Delete message?")) return; await fetch(`https://mandeepwebs.onrender.com/api/feedback/${id}`, { method: 'DELETE' }); fetchData(); };
 
-  // 🛑 IF NOT LOGGED IN, SHOW LOGIN SCREEN
+
+  // ==========================
+  // VIEW 1: LOGIN SCREEN
+  // ==========================
   if (!isAuthenticated) {
     return (
-      <div style={{
-          display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", 
-          height: "50vh", textAlign: "center", gap: "20px"
-      }}>
-          <Toaster />
-          <div style={{background: "white", padding: "40px", borderRadius: "15px", boxShadow: "0 10px 25px rgba(0,0,0,0.1)"}}>
-              <FaLock style={{fontSize: "3rem", color: "#ef4444", marginBottom: "15px"}} />
-              <h2>Admin Login</h2>
-              <p>Please enter the password to manage notes.</p>
-              
-              <form onSubmit={handleLogin} style={{display: "flex", flexDirection: "column", gap: "15px", marginTop: "20px"}}>
-                  <input 
-                    type="password" 
-                    placeholder="Enter Password" 
-                    value={password} 
-                    onChange={(e) => setPassword(e.target.value)} 
-                    style={{padding: "12px", borderRadius: "8px", border: "1px solid #ccc", fontSize: "1rem"}}
-                  />
-                  <button type="submit" style={{background: "#2563eb", color: "white", padding: "12px", border: "none", borderRadius: "8px", cursor: "pointer", fontSize: "1rem"}}>
-                      <FaUnlock /> Unlock Panel
-                  </button>
-              </form>
-          </div>
+      <div className="login-wrapper">
+        <div className="login-box">
+          <div className="login-icon"><FaLock /></div>
+          <h2>Admin Portal</h2>
+          <p>Restricted Access</p>
+          <form onSubmit={handleLogin}>
+            <input type="password" placeholder="Enter Password" value={passwordInput} onChange={e => setPasswordInput(e.target.value)} autoFocus />
+            <button type="submit">Unlock Dashboard</button>
+          </form>
+          {authError && <p className="error-msg">{authError}</p>}
+        </div>
       </div>
     );
   }
 
-  // ✅ IF LOGGED IN, SHOW ADMIN PANEL
+  // ==========================
+  // VIEW 2: DASHBOARD UI
+  // ==========================
   return (
-    <div className="admin-container" style={{padding: "20px", maxWidth: "800px", margin: "0 auto"}}>
-      <Toaster />
-      <h2 style={{borderBottom: "2px solid #2563eb", paddingBottom: "10px", display: "flex", alignItems: "center", gap: "10px"}}>
-        Admin Panel 🛠️ <span style={{fontSize: "0.8rem", background: "#dcfce7", color: "#166534", padding: "2px 8px", borderRadius: "10px"}}>Logged In</span>
-      </h2>
-
-      {/* UPLOAD FORM */}
-      <div className="upload-box" style={{background: "white", padding: "20px", borderRadius: "10px", boxShadow: "0 4px 10px rgba(0,0,0,0.1)", marginBottom: "40px"}}>
-        <h3>Upload New Note</h3>
-        <form onSubmit={handleSubmit} style={{display: "flex", flexDirection: "column", gap: "15px"}}>
-            <div style={{display: "flex", gap: "10px"}}>
-                <div style={{flex: 1}}>
-                    <label>Branch</label>
-                    <select name="branch" value={formData.branch} onChange={handleChange} className="input-field" style={{width: "100%"}}>
-                        <option value="CSE">CSE</option><option value="ECE">ECE</option><option value="CIVIL">CIVIL</option><option value="MECH">MECH</option><option value="P-CYCLE">P-CYCLE</option><option value="C-CYCLE">C-CYCLE</option>
-                    </select>
-                </div>
-                <div style={{flex: 1}}>
-                    <label>Semester</label>
-                    <select name="semester" value={formData.semester} onChange={handleChange} className="input-field" style={{width: "100%"}}>
-                        {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s}>{s}th Sem</option>)}
-                    </select>
-                </div>
-            </div>
-            <div>
-                <label>Scheme</label>
-                <select name="scheme" value={formData.scheme} onChange={handleChange} className="input-field" style={{width: "100%", border: "2px solid #2563eb"}}>
-                    <option value="2022 Scheme">2022 Scheme</option><option value="2021 Scheme">2021 Scheme</option><option value="2018 Scheme">2018 Scheme</option><option value="2024 Scheme">2024 Scheme</option>
-                </select>
-            </div>
-            <input name="subject" placeholder="Subject Name" value={formData.subject} onChange={handleChange} className="input-field" required />
-            <input name="subjectCode" placeholder="Subject Code" value={formData.subjectCode} onChange={handleChange} className="input-field" />
-            <input name="link" placeholder="Drive Link / URL" value={formData.link} onChange={handleChange} className="input-field" required />
-            <button type="submit" className="btn-primary" style={{background: "#16a34a", color: "white", padding: "12px", border: "none", borderRadius: "8px", cursor: "pointer"}}>
-                <FaFileUpload /> Upload Note
-            </button>
-        </form>
+    <div className="dashboard-container">
+      {/* SIDEBAR */}
+      <div className="dashboard-sidebar">
+        <div className="sidebar-header">
+          <h3>Admin Panel</h3>
+        </div>
+        <ul className="sidebar-menu">
+          <li className={activeTab === 'dashboard' ? 'active' : ''} onClick={() => setActiveTab('dashboard')}><FaChartPie /> Dashboard</li>
+          <li className={activeTab === 'requests' ? 'active' : ''} onClick={() => setActiveTab('requests')}>
+            <FaBell /> Requests {contributions.length > 0 && <span className="badge">{contributions.length}</span>}
+          </li>
+          <li className={activeTab === 'feedback' ? 'active' : ''} onClick={() => setActiveTab('feedback')}>
+            <FaCommentDots /> Feedback {feedbacks.length > 0 && <span className="badge">{feedbacks.length}</span>}
+          </li>
+          <li className={activeTab === 'database' ? 'active' : ''} onClick={() => setActiveTab('database')}><FaList /> Manage Notes</li>
+          <li className={activeTab === 'add' ? 'active' : ''} onClick={() => setActiveTab('add')}><FaPlus /> Add Note</li>
+          <li className="logout-btn" onClick={() => setIsAuthenticated(false)}><FaSignOutAlt /> Logout</li>
+        </ul>
       </div>
 
-      {/* NOTES LIST */}
-      <h3>Manage Existing Notes ({subjects.length})</h3>
-      <div style={{maxHeight: "500px", overflowY: "auto", border: "1px solid #ddd", borderRadius: "8px"}}>
-        {subjects.slice().reverse().map((sub) => (
-            <div key={sub._id} style={{display: "flex", justifyContent: "space-between", alignItems: "center", padding: "15px", borderBottom: "1px solid #eee", background: "white"}}>
-                <div>
-                    <h4 style={{margin: 0}}>{sub.subject}</h4>
-                    <small style={{color: "#666"}}>{sub.branch} | {sub.semester}th Sem | <b style={{color: "blue"}}>{sub.scheme || "MISSING"}</b></small>
-                </div>
-                <button onClick={() => handleDelete(sub._id)} style={{background: "red", color: "white", border: "none", padding: "8px", borderRadius: "5px", cursor: "pointer"}}><FaTrash /></button>
+      {/* MAIN CONTENT AREA */}
+      <div className="dashboard-content">
+        <div className="content-header">
+          <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
+          {status && <div className="status-toast">{status}</div>}
+        </div>
+
+        {/* --- TAB: DASHBOARD OVERVIEW --- */}
+        {activeTab === 'dashboard' && (
+          <div className="stats-grid">
+            <div className="stat-card blue">
+              <div className="stat-icon"><FaFileAlt /></div>
+              <div className="stat-info"><h3>{subjects.length}</h3><p>Total Notes</p></div>
             </div>
-        ))}
+            <div className="stat-card orange">
+              <div className="stat-icon"><FaBell /></div>
+              <div className="stat-info"><h3>{contributions.length}</h3><p>Pending Requests</p></div>
+            </div>
+            <div className="stat-card green">
+              <div className="stat-icon"><FaUserGraduate /></div>
+              <div className="stat-info"><h3>{feedbacks.length}</h3><p>User Messages</p></div>
+            </div>
+          </div>
+        )}
+
+        {/* --- TAB: REQUESTS --- */}
+        {activeTab === 'requests' && (
+          <div className="data-panel">
+            {contributions.length === 0 ? <div className="empty-state">All caught up! No pending requests.</div> : (
+              contributions.map(req => (
+                <div key={req._id} className="data-row request-row">
+                  <div className="data-info">
+                    <strong>{req.subject}</strong>
+                    <span>{req.branch} • {req.semester}th Sem • {req.scheme}</span>
+                    <small>By: {req.name || "Anonymous"}</small>
+                  </div>
+                  <div className="data-actions">
+                    <a href={req.link} target="_blank" rel="noreferrer" className="btn-link">View PDF</a>
+                    <button onClick={() => handleApprove(req)} className="btn-icon green"><FaCheck /></button>
+                    <button onClick={() => handleDeleteContrib(req._id)} className="btn-icon red"><FaTrash /></button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* --- TAB: FEEDBACK --- */}
+        {activeTab === 'feedback' && (
+          <div className="data-panel">
+            {feedbacks.length === 0 ? <div className="empty-state">No messages received.</div> : (
+              feedbacks.map(msg => (
+                <div key={msg._id} className="data-row">
+                  <div className="data-info">
+                    <strong>{msg.name || "Anonymous"}</strong>
+                    <p>"{msg.message}"</p>
+                    <small>{new Date(msg.date).toLocaleDateString()}</small>
+                  </div>
+                  <button onClick={() => handleDeleteFeedback(msg._id)} className="btn-icon red"><FaTrash /></button>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* --- TAB: DATABASE (MANAGE NOTES) --- */}
+        {activeTab === 'database' && (
+          <div className="data-panel">
+            {subjects.map(sub => (
+              <div key={sub._id} className="data-row">
+                <div className="data-info">
+                  <strong>{sub.subject}</strong>
+                  <span>{sub.branch} • {sub.semester}th Sem • {sub.subjectCode}</span>
+                </div>
+                <div className="data-actions">
+                  <a href={sub.link} target="_blank" rel="noreferrer" className="btn-link">Check Link</a>
+                  <button onClick={() => handleDeleteSubject(sub._id)} className="btn-icon red"><FaTrash /></button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* --- TAB: ADD NOTE --- */}
+        {activeTab === 'add' && (
+          <div className="form-card">
+            <h3>Add New Subject Manually</h3>
+            <form onSubmit={handleAddSubject}>
+              <div className="form-group">
+                <label>Branch & Semester</label>
+                <div className="row">
+                  <select value={newSubject.branch} onChange={e=>setNewSubject({...newSubject, branch:e.target.value})}>
+                     <option value="CSE">CSE</option><option value="ECE">ECE</option><option value="CIVIL">CIVIL</option><option value="MECH">MECH</option><option value="P-CYCLE">P-CYCLE</option><option value="C-CYCLE">C-CYCLE</option>
+                  </select>
+                  <select value={newSubject.semester} onChange={e=>setNewSubject({...newSubject, semester:e.target.value})}>
+                    {[1,2,3,4,5,6,7,8].map(n=><option key={n} value={n}>{n}th Sem</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="form-group"><label>Subject Name</label><input value={newSubject.subject} onChange={e=>setNewSubject({...newSubject, subject:e.target.value})} required placeholder="e.g. Mathematics III" /></div>
+              <div className="form-group"><label>Subject Code</label><input value={newSubject.subjectCode} onChange={e=>setNewSubject({...newSubject, subjectCode:e.target.value})} placeholder="e.g. 21MAT31" /></div>
+              <div className="form-group"><label>Google Drive Link</label><input value={newSubject.link} onChange={e=>setNewSubject({...newSubject, link:e.target.value})} required placeholder="https://..." /></div>
+              <button type="submit" className="btn-primary">Add Note to Database</button>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );
-};
+}
 
 export default Admin;

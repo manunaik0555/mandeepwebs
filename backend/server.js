@@ -1,203 +1,189 @@
+// --- IMPORTS ---
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
+const PORT = process.env.PORT || 5000;
 
 // --- MIDDLEWARE ---
 app.use(cors());
 app.use(express.json());
 
-// --- DATABASE CONNECTION ---
-// Using your specific connection string
-const MONGO_URI = "mongodb+srv://manu:manu7678@cluster0.bwesay8.mongodb.net/?appName=Cluster0";
+// --- MONGODB CONNECTION ---
+// 👇 I added '/mandeep' after mongodb.net so your data goes to the right folder
+const MONGO_URI = "mongodb+srv://manu:manu7678@cluster0.bwesay8.mongodb.net/mandeep?appName=Cluster0";
 
 mongoose.connect(MONGO_URI)
-  .then(() => console.log("✅ MongoDB Connected!"))
-  .catch(err => console.log("❌ MongoDB Error:", err));
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch(err => console.error("❌ MongoDB Error:", err));
 
-// ==========================================
-// 🔐 PART 1: AUTHENTICATION (Login System)
-// ==========================================
+// --- SCHEMAS (DATABASE MODELS) ---
 
-// User Schema
-const userSchema = new mongoose.Schema({
-  username: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
+// 1. Subject (Notes)
+const SubjectSchema = new mongoose.Schema({
+  branch: String,
+  scheme: String,
+  semester: Number,
+  subject: String,
+  subjectCode: String,
+  link: String,
 });
-const User = mongoose.model('User', userSchema);
+const Subject = mongoose.model('Subject', SubjectSchema);
 
-// Login Route
-app.post('/api/login', async (req, res) => {
-  const { username, password } = req.body;
-  try {
-    const user = await User.findOne({ username });
-    if (!user || user.password !== password) {
-      return res.status(401).json({ success: false, message: "Invalid Credentials" });
-    }
-    res.json({ success: true, username: user.username });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
+// 2. Syllabus
+const SyllabusSchema = new mongoose.Schema({
+  branch: String,
+  scheme: String,
+  link: String,
 });
+const Syllabus = mongoose.model('Syllabus', SyllabusSchema);
 
-// Add New Admin Route (Max 5 Limit)
-app.post('/api/add-admin', async (req, res) => {
-  const { newUsername, newPassword } = req.body;
-  try {
-    const existing = await User.findOne({ username: newUsername });
-    if (existing) return res.status(400).json({ success: false, message: "User already exists" });
-
-    const count = await User.countDocuments();
-    if (count >= 5) return res.status(403).json({ success: false, message: "Admin limit reached (Max 5)" });
-
-    await User.create({ username: newUsername, password: newPassword });
-    res.json({ success: true, message: "New Admin Added!" });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
+// 3. Contribution Requests (Student Uploads)
+const ContributionSchema = new mongoose.Schema({
+  name: String,
+  branch: String,
+  scheme: String,
+  semester: String,
+  subject: String,
+  link: String,
+  date: { type: Date, default: Date.now }
 });
+const Contribution = mongoose.model('Contribution', ContributionSchema);
 
-// ==========================================
-// 📄 PART 2: RESOURCES (Notes/Subjects)
-// ==========================================
-
-// Subject Schema
-const subjectSchema = new mongoose.Schema({
-    subject: String,
-    subjectCode: String,
-    branch: String,
-    semester: String,
-
-    scheme: String,  // 👈 YOU MUST ADD THIS LINE!
-
-    link: String,
-    module: String,
-    createdAt: { type: Date, default: Date.now }
-});
-const Subject = mongoose.model('Subject', subjectSchema);
-
-// GET: Fetch all subjects
-app.get('/api/subjects', async (req, res) => {
-  try {
-    const subjects = await Subject.find();
-    res.json(subjects);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// POST: Add a new subject/note
-app.post('/api/subjects', async (req, res) => {
-  try {
-    const newSubject = new Subject(req.body);
-    await newSubject.save();
-    res.json(newSubject);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// DELETE: Remove a note by ID
-app.delete('/api/subjects/:id', async (req, res) => {
-  try {
-    await Subject.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: "Resource Deleted!" });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// ==========================================
-// 💬 PART 3: FEEDBACK SYSTEM
-// ==========================================
-
-// Feedback Schema
-const feedbackSchema = new mongoose.Schema({
+// 4. Feedback
+const FeedbackSchema = new mongoose.Schema({
   name: String,
   message: String,
   date: { type: Date, default: Date.now }
 });
-const Feedback = mongoose.model('Feedback', feedbackSchema);
+const Feedback = mongoose.model('Feedback', FeedbackSchema);
 
-// POST: Save Feedback
-app.post('/api/feedback', async (req, res) => {
-  try {
-    await Feedback.create(req.body);
-    res.json({ success: true, message: "Feedback Received!" });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
 
-// GET: View Feedback
-app.get('/api/feedback', async (req, res) => {
-  try {
-    const messages = await Feedback.find().sort({ date: -1 });
-    res.json(messages);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// --- API ROUTES ---
 
-// DELETE: Remove feedback by ID
-app.delete('/api/feedback/:id', async (req, res) => {
-  try {
-    await Feedback.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: "Feedback Deleted!" });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
+// Test Route
+app.get('/', (req, res) => {
+  res.send("MandeepWebs Backend is Running!");
 });
 
 // ==========================================
-// 📘 PART 4: SYLLABUS SYSTEM
+// 1. NOTES (SUBJECTS) ROUTES
 // ==========================================
-
-// Syllabus Schema
-const syllabusSchema = new mongoose.Schema({
-  branch: String,
-  scheme: String, 
-  link: String
+app.get('/api/subjects', async (req, res) => {
+  try {
+    const data = await Subject.find();
+    res.json(data);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
-const Syllabus = mongoose.model('Syllabus', syllabusSchema);
 
-// GET: Fetch all syllabus links
+app.post('/api/subjects', async (req, res) => {
+  try {
+    const newItem = new Subject(req.body);
+    await newItem.save();
+    res.json(newItem);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/api/subjects/:id', async (req, res) => {
+  try {
+    await Subject.findByIdAndDelete(req.params.id);
+    res.json({ message: "Subject Deleted" });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ==========================================
+// 2. SYLLABUS ROUTES
+// ==========================================
 app.get('/api/syllabus', async (req, res) => {
   try {
     const data = await Syllabus.find();
     res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// POST: Upload a new syllabus
 app.post('/api/syllabus', async (req, res) => {
   try {
-    const newSyllabus = new Syllabus(req.body);
-    await newSyllabus.save();
-    res.json({ success: true, message: "Syllabus Uploaded!" });
-  } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
-  }
+    const newItem = new Syllabus(req.body);
+    await newItem.save();
+    res.json(newItem);
+  } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-// DELETE: Remove syllabus
 app.delete('/api/syllabus/:id', async (req, res) => {
   try {
     await Syllabus.findByIdAndDelete(req.params.id);
-    res.json({ success: true, message: "Deleted!" });
+    res.json({ message: "Syllabus Deleted" });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ==========================================
+// 3. STUDENT REQUESTS (CONTRIBUTIONS) ROUTES
+// ==========================================
+
+// Submit a Request (Public)
+app.post('/api/contribute', async (req, res) => {
+  try {
+    const newItem = new Contribution(req.body);
+    await newItem.save();
+    res.json({ message: "Contribution saved!" });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({ error: "Failed to save" });
+  }
+});
+
+// View Requests (Admin Only)
+app.get('/api/contribute', async (req, res) => {
+  try {
+    const data = await Contribution.find().sort({ date: -1 });
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch" });
+  }
+});
+
+// Delete/Approve Request (Admin Only)
+app.delete('/api/contribute/:id', async (req, res) => {
+  try {
+    await Contribution.findByIdAndDelete(req.params.id);
+    res.json({ message: "Deleted" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete" });
   }
 });
 
 // ==========================================
-// 🚀 SERVER START
+// 4. FEEDBACK ROUTES
 // ==========================================
-const PORT = 5000;
+
+// Send Feedback (Public)
+app.post('/api/feedback', async (req, res) => {
+  try {
+    const newItem = new Feedback(req.body);
+    await newItem.save();
+    res.json({ message: "Feedback Received" });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// View Feedback (Admin)
+app.get('/api/feedback', async (req, res) => {
+  try {
+    const data = await Feedback.find().sort({ date: -1 });
+    res.json(data);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// Delete Feedback (Admin)
+app.delete('/api/feedback/:id', async (req, res) => {
+  try {
+    await Feedback.findByIdAndDelete(req.params.id);
+    res.json({ message: "Feedback Deleted" });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+
+// --- START SERVER ---
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
