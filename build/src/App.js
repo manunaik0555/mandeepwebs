@@ -245,7 +245,7 @@ function App() {
               🔥 Urgent Requirement
             </h3>
             <p style={{fontSize: "0.9rem", color: "#374151", margin: "0 0 15px 0", lineHeight: "1.4"}}>
-              We are looking for a developer to help <b>maintain the Backend & Code</b>.
+              We are looking for a developer to help <b>maintain the Backend & Code maintainance</b>.
             </p>
             <button 
               onClick={() => window.open('https://wa.me/918792837678?text=Hi%20Manu,%20I%20am%20interested%20in%20the%20Backend%20Role', '_blank')} 
