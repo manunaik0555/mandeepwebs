@@ -12,6 +12,7 @@ import {
 import { motion } from 'framer-motion';
 import './App.css';
 import Contact from './Contact';
+import CookieConsent from './CookieConsent';
 
 function App() {
   const [subjects, setSubjects] = useState([]);
@@ -306,6 +307,7 @@ function App() {
       {!isAdmin && <Contact />}
 
       <footer className="footer"><p>© 2025 Designed and Developed by @ manunaik0555</p></footer>
+      <CookieConsent />
     </div>
   );
 }
