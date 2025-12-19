@@ -242,7 +242,7 @@ function App() {
           {/* 👇 START OF HIRING WIDGET (NEW) 👇 */}
           <div className="sidebar-widget" style={{border: "2px dashed #e11d48", backgroundColor: "#fff1f2", padding: "15px", borderRadius: "10px", marginBottom: "20px"}}>
             <h3 style={{color: "#e11d48", display: "flex", alignItems: "center", gap: "10px", margin: "0 0 10px 0", fontSize: "1.1rem"}}>
-              🔥 Urgent Requirement
+               Urgent Requirement !!
             </h3>
             <p style={{fontSize: "0.9rem", color: "#374151", margin: "0 0 15px 0", lineHeight: "1.4"}}>
               We are looking for a developer to help <b>maintain the Backend & Code maintainance</b>.
