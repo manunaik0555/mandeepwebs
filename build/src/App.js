@@ -10,15 +10,15 @@ import {
   FaSun, FaMoon, FaSearch, FaFolderOpen 
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
-import toast, { Toaster } from 'react-hot-toast'; // 👈 IMPORT TOAST
+import toast, { Toaster } from 'react-hot-toast'; 
 import './App.css';
 import Contact from './Contact';
-import CookieConsent from './CookieConsent'; // Ensure you created this file from previous steps
+import CookieConsent from './CookieConsent'; 
 
 function App() {
   const [subjects, setSubjects] = useState([]);
   const [syllabusList, setSyllabusList] = useState([]); 
-  const [loading, setLoading] = useState(true); // 👈 We use this for Skeletons
+  const [loading, setLoading] = useState(true); 
   
   const [darkMode, setDarkMode] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -49,7 +49,7 @@ function App() {
       .then(res => res.json())
       .then(data => { 
         setSubjects(data); 
-        setLoading(false); // 👈 Stops the skeleton loader
+        setLoading(false); // ⚡ Fast loading (No delay)
       })
       .catch(err => {
         console.error(err);
@@ -239,6 +239,28 @@ function App() {
             <div style={{display: "flex", justifyContent: "center", gap: "20px", marginTop: "15px"}}><a href="https://github.com/manunaik0555" target="_blank" rel="noreferrer" style={{color: "var(--text-color)", fontSize: "1.8rem"}}><FaGithub /></a><a href="https://www.linkedin.com/in/manu-naik-590364280/" target="_blank" rel="noreferrer" style={{color: "#0077b5", fontSize: "1.8rem"}}><FaLinkedin /></a></div>
           </div>
           
+          {/* 👇 START OF HIRING WIDGET (NEW) 👇 */}
+          <div className="sidebar-widget" style={{border: "2px dashed #e11d48", backgroundColor: "#fff1f2", padding: "15px", borderRadius: "10px", marginBottom: "20px"}}>
+            <h3 style={{color: "#e11d48", display: "flex", alignItems: "center", gap: "10px", margin: "0 0 10px 0", fontSize: "1.1rem"}}>
+              🔥 Urgent Requirement
+            </h3>
+            <p style={{fontSize: "0.9rem", color: "#374151", margin: "0 0 15px 0", lineHeight: "1.4"}}>
+              We are looking for a developer to help <b>maintain the Backend & Source Code</b>.
+            </p>
+            <button 
+              onClick={() => window.open('https://wa.me/918782837678?text=Hi%20Manu,%20I%20am%20interested%20in%20the%20Backend%20Role', '_blank')} 
+              style={{
+                  width: "100%", background: "#e11d48", color: "white", border: "none", padding: "10px", 
+                  borderRadius: "6px", cursor: "pointer", fontWeight: "bold", fontSize: "0.9rem", transition: "background 0.2s"
+              }}
+              onMouseOver={(e) => e.target.style.background = "#be123c"}
+              onMouseOut={(e) => e.target.style.background = "#e11d48"}
+            >
+              Apply / DM Me ➜
+            </button>
+          </div>
+          {/* 👆 END OF HIRING WIDGET 👆 */}
+
           <div className="sidebar-widget" style={{borderTop: "4px solid #16a34a"}}>
             <h3 style={{color:"#16a34a", fontSize:"1.1rem"}}><FaFileUpload style={{marginRight:"5px"}}/> Upload Notes</h3>
             <p style={{fontSize:"0.85rem", color:"var(--text-light)", marginBottom:"10px"}}>Help your juniors! Share your PDF link.</p>
