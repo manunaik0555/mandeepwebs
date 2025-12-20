@@ -209,7 +209,7 @@ function Admin() {
               <div className="form-group"><label>Subject Name</label><input value={newSubject.subject} onChange={e=>setNewSubject({...newSubject, subject:e.target.value})} required placeholder="e.g. Mathematics III" /></div>
               <div className="form-group"><label>Subject Code</label><input value={newSubject.subjectCode} onChange={e=>setNewSubject({...newSubject, subjectCode:e.target.value})} placeholder="e.g. 21MAT31" /></div>
               <div className="form-group"><label>Google Drive Link</label><input value={newSubject.link} onChange={e=>setNewSubject({...newSubject, link:e.target.value})} required placeholder="https://..." /></div>
-              <button type="submit" className="btn-primary">Add Note to Database</button>
+              <button type="submit" className="btn-primary">Add Note to our Database</button>
             </form>
           </div>
         )}
@@ -218,4 +218,4 @@ function Admin() {
   );
 }
 
-export default Admin;
+export default Admin; 
