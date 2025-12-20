@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   FaTrash, FaCheck, FaPlus, FaList, FaBell, FaCommentDots, 
-  FaLock, FaKey, FaSignOutAlt, FaChartPie, FaFileAlt, FaUserGraduate 
+  FaLock, FaKey, FaSignOutAlt, FaChartPie, FaFileAlt, FaUserGraduate, FaSync 
 } from 'react-icons/fa';
 import './App.css'; 
 
@@ -18,8 +18,9 @@ function Admin() {
   const [feedbacks, setFeedbacks] = useState([]);
   
   // --- UI STATE ---
-  const [activeTab, setActiveTab] = useState("dashboard"); // 'dashboard', 'requests', 'feedback', 'database', 'add'
+  const [activeTab, setActiveTab] = useState("dashboard"); 
   const [status, setStatus] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false); // New state for refresh spin
 
   // --- FORM STATE ---
   const [newSubject, setNewSubject] = useState({ 
@@ -27,12 +28,40 @@ function Admin() {
   });
 
   // --- FETCH DATA ---
-  useEffect(() => { if(isAuthenticated) fetchData(); }, [isAuthenticated]);
+  // 1. Fetch on Login
+  useEffect(() => { 
+    if(isAuthenticated) fetchData(); 
+  }, [isAuthenticated]);
 
-  const fetchData = () => {
-    fetch('https://mandeepwebs.onrender.com/api/subjects').then(res => res.json()).then(data => setSubjects(data)).catch(err => console.error(err));
-    fetch('https://mandeepwebs.onrender.com/api/contribute').then(res => res.json()).then(data => setContributions(data)).catch(err => console.error(err));
-    fetch('https://mandeepwebs.onrender.com/api/feedback').then(res => res.json()).then(data => setFeedbacks(data)).catch(err => console.error(err));
+  // 2. AUTO-REFRESH: Check for updates every 10 seconds
+  useEffect(() => {
+    if(!isAuthenticated) return;
+    const interval = setInterval(() => {
+      fetchData(true); // true = silent refresh (don't show big loading spinner)
+    }, 10000); // 10000ms = 10 seconds
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
+  const fetchData = async (silent = false) => {
+    if(!silent) setIsRefreshing(true);
+    try {
+        const [subRes, reqRes, feedRes] = await Promise.all([
+            fetch('https://mandeepwebs.onrender.com/api/subjects'),
+            fetch('https://mandeepwebs.onrender.com/api/contribute'),
+            fetch('https://mandeepwebs.onrender.com/api/feedback')
+        ]);
+        
+        const subData = await subRes.json();
+        const reqData = await reqRes.json();
+        const feedData = await feedRes.json();
+
+        setSubjects(subData);
+        setContributions(reqData);
+        setFeedbacks(feedData);
+    } catch(err) {
+        console.error("Error fetching data:", err);
+    }
+    if(!silent) setIsRefreshing(false);
   };
 
   // --- LOGIN ---
@@ -111,7 +140,13 @@ function Admin() {
       <div className="dashboard-content">
         <div className="content-header">
           <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
-          {status && <div className="status-toast">{status}</div>}
+          <div style={{display:'flex', gap:'15px', alignItems:'center'}}>
+             {status && <div className="status-toast">{status}</div>}
+             {/* REFRESH BUTTON */}
+             <button onClick={() => fetchData()} style={{background:"transparent", border:"none", cursor:"pointer", color: isRefreshing ? "#2563eb" : "#64748b", fontSize:"1.2rem", transition:"0.3s"}}>
+                <FaSync className={isRefreshing ? "spin-anim" : ""} />
+             </button>
+          </div>
         </div>
 
         {/* --- TAB: DASHBOARD OVERVIEW --- */}
@@ -209,7 +244,7 @@ function Admin() {
               <div className="form-group"><label>Subject Name</label><input value={newSubject.subject} onChange={e=>setNewSubject({...newSubject, subject:e.target.value})} required placeholder="e.g. Mathematics III" /></div>
               <div className="form-group"><label>Subject Code</label><input value={newSubject.subjectCode} onChange={e=>setNewSubject({...newSubject, subjectCode:e.target.value})} placeholder="e.g. 21MAT31" /></div>
               <div className="form-group"><label>Google Drive Link</label><input value={newSubject.link} onChange={e=>setNewSubject({...newSubject, link:e.target.value})} required placeholder="https://..." /></div>
-              <button type="submit" className="btn-primary">Add Note to our Database</button>
+              <button type="submit" className="btn-primary">Add Note to Database</button>
             </form>
           </div>
         )}
@@ -218,4 +253,4 @@ function Admin() {
   );
 }
 
-export default Admin; 
+export default Admin;
