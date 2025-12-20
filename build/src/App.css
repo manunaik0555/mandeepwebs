@@ -527,3 +527,5 @@ body {
   .sidebar-menu li { padding: 15px; flex-shrink: 0; }
   .sidebar-header { display: none; }
 }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.spin-anim { animation: spin 1s linear infinite; }
