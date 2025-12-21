@@ -178,7 +178,7 @@ function App() {
               </section>
             )}
 
-            {/* STEP 3: SELECT SEMESTER (This was missing!) */}
+            {/* STEP 3: SELECT SEMESTER */}
             {currentBranch !== "ALL" && currentScheme !== null && currentSemester === null && (
               <section>
                 <button onClick={() => setCurrentScheme(null)} className="back-btn"><FaArrowLeft /> Back</button>
@@ -228,11 +228,16 @@ function App() {
           {/* HIDDEN IN ADMIN */}
           {!isAdmin && (
             <>
-              {/* Urgent Req */}
+              {/* Urgent Req - FIXED LINK WITH PRE-FILLED MESSAGE */}
               <div className="sidebar-widget" style={{border: "2px solid red", background: "#fee2e2", borderStyle: "dashed"}}>
                 <h3 style={{color:"#dc2626"}}>Urgent Requirement !!</h3>
                 <p style={{fontSize:"0.9rem", color:"#7f1d1d"}}>We are looking for a developer to help maintain the Backend & Code maintainance.</p>
-                <button onClick={()=>window.open("https://wa.me/+918792837678", "_blank")} style={{width:"100%", background:"#dc2626", color:"white", padding:"10px", border:"none", borderRadius:"5px", marginTop:"10px", cursor:"pointer", fontWeight:"bold"}}>Apply / DM Me ➜</button>
+                <button 
+                  onClick={()=>window.open("https://wa.me/918792837678?text=Hi%20Manu,%20I%20am%20interested%20in%20the%20Developer%20role%20for%20your%20website", "_blank")} 
+                  style={{width:"100%", background:"#dc2626", color:"white", padding:"10px", border:"none", borderRadius:"5px", marginTop:"10px", cursor:"pointer", fontWeight:"bold"}}
+                >
+                  Apply / DM Me ➜
+                </button>
               </div>
 
               {/* Upload Notes */}
