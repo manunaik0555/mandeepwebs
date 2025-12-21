@@ -20,25 +20,24 @@ function Admin() {
   // --- UI STATE ---
   const [activeTab, setActiveTab] = useState("dashboard"); 
   const [status, setStatus] = useState("");
-  const [isRefreshing, setIsRefreshing] = useState(false); // New state for refresh spin
+  const [isRefreshing, setIsRefreshing] = useState(false); 
 
   // --- FORM STATE ---
+  // Default scheme is set to "2022 Scheme"
   const [newSubject, setNewSubject] = useState({ 
     branch: "CSE", scheme: "2022 Scheme", semester: "3", subject: "", subjectCode: "", link: "" 
   });
 
   // --- FETCH DATA ---
-  // 1. Fetch on Login
   useEffect(() => { 
     if(isAuthenticated) fetchData(); 
   }, [isAuthenticated]);
 
-  // 2. AUTO-REFRESH: Check for updates every 10 seconds
   useEffect(() => {
     if(!isAuthenticated) return;
     const interval = setInterval(() => {
-      fetchData(true); // true = silent refresh (don't show big loading spinner)
-    }, 10000); // 10000ms = 10 seconds
+      fetchData(true); 
+    }, 5000); 
     return () => clearInterval(interval);
   }, [isAuthenticated]);
 
@@ -76,7 +75,10 @@ function Admin() {
     e.preventDefault(); setStatus("Adding...");
     try {
         await fetch('https://mandeepwebs.onrender.com/api/subjects', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(newSubject) });
-        setStatus("✅ Note Added Successfully!"); setNewSubject({ ...newSubject, subject: "", subjectCode: "", link: "" }); fetchData();
+        setStatus("✅ Note Added Successfully!"); 
+        // Reset form but keep intelligent defaults
+        setNewSubject({ ...newSubject, subject: "", subjectCode: "", link: "" }); 
+        fetchData();
     } catch(err) { setStatus("❌ Error Adding Note"); }
   };
   const handleDeleteSubject = async (id) => { if(!window.confirm("Delete this note permanently?")) return; await fetch(`https://mandeepwebs.onrender.com/api/subjects/${id}`, { method: 'DELETE' }); fetchData(); };
@@ -142,7 +144,6 @@ function Admin() {
           <h2>{activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}</h2>
           <div style={{display:'flex', gap:'15px', alignItems:'center'}}>
              {status && <div className="status-toast">{status}</div>}
-             {/* REFRESH BUTTON */}
              <button onClick={() => fetchData()} style={{background:"transparent", border:"none", cursor:"pointer", color: isRefreshing ? "#2563eb" : "#64748b", fontSize:"1.2rem", transition:"0.3s"}}>
                 <FaSync className={isRefreshing ? "spin-anim" : ""} />
              </button>
@@ -214,7 +215,7 @@ function Admin() {
               <div key={sub._id} className="data-row">
                 <div className="data-info">
                   <strong>{sub.subject}</strong>
-                  <span>{sub.branch} • {sub.semester}th Sem • {sub.subjectCode}</span>
+                  <span>{sub.branch} • {sub.semester}th Sem • {sub.scheme}</span>
                 </div>
                 <div className="data-actions">
                   <a href={sub.link} target="_blank" rel="noreferrer" className="btn-link">Check Link</a>
@@ -225,25 +226,38 @@ function Admin() {
           </div>
         )}
 
-        {/* --- TAB: ADD NOTE --- */}
+        {/* --- TAB: ADD NOTE (UPDATED WITH SCHEME!) --- */}
         {activeTab === 'add' && (
           <div className="form-card">
             <h3>Add New Subject Manually</h3>
             <form onSubmit={handleAddSubject}>
               <div className="form-group">
-                <label>Branch & Semester</label>
+                <label>Details</label>
                 <div className="row">
-                  <select value={newSubject.branch} onChange={e=>setNewSubject({...newSubject, branch:e.target.value})}>
+                  {/* Branch Selector */}
+                  <select value={newSubject.branch} onChange={e=>setNewSubject({...newSubject, branch:e.target.value})} style={{flex: 1}}>
                      <option value="CSE">CSE</option><option value="ECE">ECE</option><option value="CIVIL">CIVIL</option><option value="MECH">MECH</option><option value="P-CYCLE">P-CYCLE</option><option value="C-CYCLE">C-CYCLE</option>
                   </select>
-                  <select value={newSubject.semester} onChange={e=>setNewSubject({...newSubject, semester:e.target.value})}>
+
+                  {/* Scheme Selector (NEW) */}
+                  <select value={newSubject.scheme} onChange={e=>setNewSubject({...newSubject, scheme:e.target.value})} style={{flex: 1}}>
+                    <option value="2024 Scheme">2024 Scheme</option>
+                    <option value="2022 Scheme">2022 Scheme</option>
+                    <option value="2021 Scheme">2021 Scheme</option>
+                    <option value="2018 Scheme">2018 Scheme</option>
+                  </select>
+
+                  {/* Semester Selector */}
+                  <select value={newSubject.semester} onChange={e=>setNewSubject({...newSubject, semester:e.target.value})} style={{width: "100px"}}>
                     {[1,2,3,4,5,6,7,8].map(n=><option key={n} value={n}>{n}th Sem</option>)}
                   </select>
                 </div>
               </div>
+              
               <div className="form-group"><label>Subject Name</label><input value={newSubject.subject} onChange={e=>setNewSubject({...newSubject, subject:e.target.value})} required placeholder="e.g. Mathematics III" /></div>
               <div className="form-group"><label>Subject Code</label><input value={newSubject.subjectCode} onChange={e=>setNewSubject({...newSubject, subjectCode:e.target.value})} placeholder="e.g. 21MAT31" /></div>
               <div className="form-group"><label>Google Drive Link</label><input value={newSubject.link} onChange={e=>setNewSubject({...newSubject, link:e.target.value})} required placeholder="https://..." /></div>
+              
               <button type="submit" className="btn-primary">Add Note to Database</button>
             </form>
           </div>
