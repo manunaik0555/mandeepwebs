@@ -27,12 +27,12 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activePage, setActivePage] = useState("home"); 
 
-  // FILTERS
+  // FILTERS (Main Home Page)
   const [currentBranch, setCurrentBranch] = useState("ALL");
   const [currentScheme, setCurrentScheme] = useState(null);
   const [currentSemester, setCurrentSemester] = useState(null);
   
-  // SYLLABUS
+  // SYLLABUS FILTERS
   const [syllabusBranch, setSyllabusBranch] = useState(null);
   const [syllabusScheme, setSyllabusScheme] = useState(null);
 
@@ -81,6 +81,7 @@ function App() {
 
   const handleNavClick = (page) => {
     setActivePage(page); setIsAdmin(false); setMobileMenuOpen(false);
+    // Reset all filters when switching pages
     setCurrentBranch("ALL"); setCurrentScheme(null); setCurrentSemester(null); 
     setSyllabusBranch(null); setSyllabusScheme(null);
   };
@@ -149,6 +150,7 @@ function App() {
         ) : (
           <div className="content-column">
             
+            {/* STEP 1: SELECT DEPARTMENT */}
             {currentBranch === "ALL" && (
               <section>
                 <h3 className="section-title">Departments</h3>
@@ -157,10 +159,41 @@ function App() {
               </section>
             )}
 
-            {currentBranch !== "ALL" && currentScheme === null && (<section><button onClick={() => setCurrentBranch("ALL")} className="back-btn"><FaArrowLeft /> Back</button><h3 className="section-title">Select Scheme for {currentBranch}</h3><div className="dept-grid">{["2024 Scheme", "2022 Scheme", "2021 Scheme", "2018 Scheme"].map((scheme) => (<motion.div key={scheme} whileHover={{ scale: 1.05 }} onClick={() => setCurrentScheme(scheme)} className="dept-card" style={{borderLeft: "5px solid #2563eb"}}><FaCalendarAlt style={{fontSize:"1.5rem", color:"#2563eb", marginBottom:"10px"}}/><h4>{scheme}</h4></motion.div>))}</div></section>)}
+            {/* STEP 2: SELECT SCHEME */}
+            {currentBranch !== "ALL" && currentScheme === null && (
+              <section>
+                <button onClick={() => setCurrentBranch("ALL")} className="back-btn"><FaArrowLeft /> Back</button>
+                <h3 className="section-title">Select Scheme for {currentBranch}</h3>
+                <div className="dept-grid">
+                  {["2024 Scheme", "2022 Scheme", "2021 Scheme", "2018 Scheme"].map((scheme) => (
+                    <motion.div key={scheme} whileHover={{ scale: 1.05 }} 
+                      onClick={() => { setCurrentScheme(scheme); setCurrentSemester(null); }} 
+                      className="dept-card" style={{borderLeft: "5px solid #2563eb"}}
+                    >
+                      <FaCalendarAlt style={{fontSize:"1.5rem", color:"#2563eb", marginBottom:"10px"}}/>
+                      <h4>{scheme}</h4>
+                    </motion.div>
+                  ))}
+                </div>
+              </section>
+            )}
 
-            {currentBranch !== "ALL" && currentScheme !== null && currentSemester !== null && (<section><button onClick={() => setCurrentScheme(null)} className="back-btn"><FaArrowLeft /> Back</button><h3 className="section-title">Select Semester</h3><div className="dept-grid">{(currentBranch === "P-CYCLE" || currentBranch === "C-CYCLE" ? [1, 2] : [3, 4, 5, 6, 7, 8]).map((sem) => (<motion.div key={sem} whileHover={{ scale: 1.05 }} onClick={() => setCurrentSemester(sem)} className="dept-card"><h4>{sem}th Sem</h4></motion.div>))}</div></section>)}
+            {/* STEP 3: SELECT SEMESTER (This was missing!) */}
+            {currentBranch !== "ALL" && currentScheme !== null && currentSemester === null && (
+              <section>
+                <button onClick={() => setCurrentScheme(null)} className="back-btn"><FaArrowLeft /> Back</button>
+                <h3 className="section-title">Select Semester</h3>
+                <div className="dept-grid">
+                  {(currentBranch === "P-CYCLE" || currentBranch === "C-CYCLE" ? [1, 2] : [3, 4, 5, 6, 7, 8]).map((sem) => (
+                    <motion.div key={sem} whileHover={{ scale: 1.05 }} onClick={() => setCurrentSemester(sem)} className="dept-card">
+                      <h4>{sem}th Sem</h4>
+                    </motion.div>
+                  ))}
+                </div>
+              </section>
+            )}
 
+            {/* STEP 4: VIEW NOTES */}
             {currentBranch !== "ALL" && currentScheme !== null && currentSemester !== null && (
               <section className="uploads-section">
                 <button onClick={() => setCurrentSemester(null)} className="back-btn"><FaArrowLeft /> Back</button>
@@ -192,17 +225,17 @@ function App() {
             </div>
           </div>
           
-          {/* 🔴 EVERYTHING BELOW IS HIDDEN WHEN ADMIN IS OPEN 🔴 */}
+          {/* HIDDEN IN ADMIN */}
           {!isAdmin && (
             <>
-              {/* Urgent Req Widget */}
+              {/* Urgent Req */}
               <div className="sidebar-widget" style={{border: "2px solid red", background: "#fee2e2", borderStyle: "dashed"}}>
                 <h3 style={{color:"#dc2626"}}>Urgent Requirement !!</h3>
                 <p style={{fontSize:"0.9rem", color:"#7f1d1d"}}>We are looking for a developer to help maintain the Backend & Code maintainance.</p>
-                <button onClick={()=>window.open("https://wa.me/+918782837678", "_blank")} style={{width:"100%", background:"#dc2626", color:"white", padding:"10px", border:"none", borderRadius:"5px", marginTop:"10px", cursor:"pointer", fontWeight:"bold"}}>Apply / DM Me ➜</button>
+                <button onClick={()=>window.open("https://wa.me/+918792837678", "_blank")} style={{width:"100%", background:"#dc2626", color:"white", padding:"10px", border:"none", borderRadius:"5px", marginTop:"10px", cursor:"pointer", fontWeight:"bold"}}>Apply / DM Me ➜</button>
               </div>
 
-              {/* Upload Notes Widget */}
+              {/* Upload Notes */}
               <div className="sidebar-widget" style={{borderTop: "4px solid #16a34a"}}>
                 <h3 style={{color:"#16a34a", fontSize:"1.1rem"}}><FaFileUpload style={{marginRight:"5px"}}/> Upload Notes</h3>
                 <p style={{fontSize:"0.85rem", color:"var(--text-light)", marginBottom:"10px"}}>Help your juniors! Share your PDF link.</p>
@@ -226,10 +259,10 @@ function App() {
                 {contribStatus && <p style={{marginTop:"5px", fontSize:"0.8rem", color:"#16a34a"}}>{contribStatus}</p>}
               </div>
 
-              {/* Join Community Widget */}
+              {/* Join Community */}
               <div className="sidebar-widget gradient-widget">
                   <h3>Join Community</h3>
-                  <button className="btn-social whatsapp" onClick={() => window.open('https://chat.whatsapp.com/YOUR_LINK', '_blank')}><FaWhatsapp /> WhatsApp</button>
+                  <button className="btn-social whatsapp" onClick={() => window.open('https://chat.whatsapp.com/LSBNjg50ugp4JMpcsd7dOG', '_blank')}><FaWhatsapp /> WhatsApp</button>
               </div>
 
               {/* Feedback Widget */}
