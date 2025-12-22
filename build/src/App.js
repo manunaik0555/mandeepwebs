@@ -231,7 +231,7 @@ function App() {
               {/* Urgent Req - FIXED LINK WITH PRE-FILLED MESSAGE */}
               <div className="sidebar-widget" style={{border: "2px solid red", background: "#fee2e2", borderStyle: "dashed"}}>
                 <h3 style={{color:"#dc2626"}}>Urgent Requirement !!</h3>
-                <p style={{fontSize:"0.9rem", color:"#7f1d1d"}}>We are looking for a developer to maintain the Backend & Code maintainance.</p>
+                <p style={{fontSize:"0.9rem", color:"#7f1d1d"}}>iam looking for a developer to maintain the Backend & Code maintainance.</p>
                 <button 
                   onClick={()=>window.open("https://wa.me/918792837678?text=Hi%20Manu,%20I%20am%20interested%20in%20the%20Developer%20role%20for%20your%20website", "_blank")} 
                   style={{width:"100%", background:"#dc2626", color:"white", padding:"10px", border:"none", borderRadius:"5px", marginTop:"10px", cursor:"pointer", fontWeight:"bold"}}
