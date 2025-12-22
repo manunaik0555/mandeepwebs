@@ -10,7 +10,7 @@ function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [authError, setAuthError] = useState("");
-  const ADMIN_PASSWORD = "manu"; 
+  const ADMIN_PASSWORD = "Manu"; 
 
   // --- DATA STATE ---
   const [subjects, setSubjects] = useState([]);
